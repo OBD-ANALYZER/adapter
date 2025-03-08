@@ -19,12 +19,29 @@ class Car:
         self.throttle_position = 0
         self.brake_position = 0
         self.gear = 1
+        self.engine_temp = 40
 
     def update(self, throttle_position, brake_position):
         self.throttle_position = throttle_position
         self.brake_position = brake_position
         self.update_rpm()
         self.update_speed()
+        self.update_engine_temp()
+    def update_engine_temp(self):
+        """Simulate engine temperature changes based on throttle and brake inputs. """
+        # Increase temperature with throttle input
+        if self.throttle_position > 0:
+            self.engine_temp += self.throttle_position * 0.1
+
+        # Decrease temperature with brake input
+        if self.brake_position > 0:
+            self.engine_temp -= self.brake_position * 0.05
+
+        # Clamp temperature to realistic bounds (e.g., 40°C to 120°C)
+        self.engine_temp = max(40, min(self.engine_temp, 120))
+
+    def get_engine_temp(self):
+        return self.engine_temp
 
     def update_rpm(self):
         max_torque = 400  # Max torque in Nm

@@ -637,7 +637,10 @@ ObdMessage = {
         'COOLANT_TEMP': {
             'Request': '^0105' + ELM_FOOTER,
             'Descr': 'Engine Coolant Temperature',
-            'Response': PA('7B')
+            "ResponseFooter": lambda self, cmd, pid, uc_val: (
+                f"{(temp := int(self.database['engine_temp']) - 40):02X} "
+                + " " + HD(ECU_R_ADDR_E) + SZ("03") + DT("41 05 " + f"{temp:02X}")
+            )
         },
         'INTAKE_PRESSURE': {
             'Request': '^010B' + ELM_FOOTER,
