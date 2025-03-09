@@ -169,7 +169,12 @@ class CarEmulatorGUI:
                 speed_label.config(text=f"Current Speed: {y:.1f} km/h")
                 # logging.debug(f"Current Speed: {y:2f} km/h")
                 self.emulator.database["speed"] = y
-
+                # Calculate and update the engine temperature based on the speed
+                # 70°C at speed 0, increases by 0.1°C per km/h
+                self.car.engine_temp = 70 + (self.car.speed * 0.1)
+                temp_label.config(
+                    text=f"Engine Temperature: {self.car.engine_temp:.1f} °C")
+                self.emulator.database["engine_temp"] = self.car.engine_temp
                 if t < 1.0:
                     root.after(10, animate, duration, start_time)
                 else:

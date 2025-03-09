@@ -19,7 +19,12 @@ class Car:
         self.throttle_position = 0
         self.brake_position = 0
         self.gear = 1
-        self.engine_temp = 40
+        self.engine_temp = 70
+        self.database = {
+            "rpm": self.rpm,
+            "speed": self.speed,
+            "engine_temp": self.engine_temp,
+        }
 
     def update(self, throttle_position, brake_position):
         self.throttle_position = throttle_position

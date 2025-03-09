@@ -506,7 +506,7 @@ class Elm:
         self.database = {
             "rpm": 0,
             "speed": 0,
-            "engine_temp": 40,
+            "engine_temp": 70,
         }
         self.version = ELM_VERSION
         self.header_version = ELM_HEADER_VERSION
@@ -1813,8 +1813,8 @@ class Elm:
         # Handle PID 0105 (Engine Coolant Temperature)
         if cmd == "0105":
             # Get the current engine temperature from the database
-            # Default to 40°C if not set
-            temp = self.database.get("engine_temp", 40)
+            # Default to 70°C if not set
+            temp = self.database.get("engine_temp", 70)
 
         # Convert temperature to OBD-II format (offset by 40°C)
             obd_temp = int(temp) - 40
@@ -2095,11 +2095,11 @@ class Elm:
                 # Handle PID 0105 (Engine Coolant Temperature)
                 if pid == "0105":
                     # Get the current engine temperature from the database
-                    # Default to 40°C if not set
-                    temp = self.database.get("engine_temp", 40)
+                    # Default to 70°C if not set
+                    temp = self.database.get("engine_temp", 70)
 
-                    # Convert temperature to OBD-II format (offset by 40°C)
-                    obd_temp = int(temp) - 40
+                    # Convert temperature to OBD-II format (offset by 70°C)
+                    obd_temp = int(temp) - 70
                     obd_temp_hex = f"{obd_temp:02X}"  # Convert to 2-digit hex
 
                     # Format the OBD-II response (41 05 <temperature>)
