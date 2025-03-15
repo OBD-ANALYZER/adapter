@@ -11,6 +11,10 @@ import os
 import re
 import socket
 from enum import Enum
+import serial
+
+# Assuming Car is defined in a module named car_module
+from .car_emulator import Car
 
 import serial
 
@@ -38,7 +42,8 @@ NETWORK_INTERFACES = ""
 PLUGIN_DIR = __package__ + ".plugins"
 MAX_TASKS = 20
 ISO_TP_MULTIFRAME_MODULE = 'ISO-TP request pending'
-MIN_SIZE_UDS_LENGTH = 20  # Minimum size to use a UDS header with additional length byte (ISO 14230-2)
+# Minimum size to use a UDS header with additional length byte (ISO 14230-2)
+MIN_SIZE_UDS_LENGTH = 20
 INTERRUPT_TASK_IF_NOT_HEX = False
 ELM_VALID_CHARS = r"^[a-zA-Z0-9 \n\r\b\t@,.?]*$"
 ECU_TASK = "task_ecu_"
@@ -114,7 +119,8 @@ class Tasks:
         if pid:  # None if ECU Task, pid if ELM command Task
             self.pid = pid  # PID label
             self.header = header  # request header
-            self.request = request  # original request data (stored before running the start() method)
+            # original request data (stored before running the start() method)
+            self.request = request
             self.attrib = attrib  # dictionary element (None if not pertinent)
             self.do_write = do_write  # (boolean) will write to the application
             self.frame = None  # ISO-TP Multiframe request frame counter
@@ -125,7 +131,8 @@ class Tasks:
         else:
             self.shared = self  # ECU Task
         self.logging = emulator.logger  # logger reference
-        self.time_started = time.time()  # timer (to be used to simulate background processing)
+        # timer (to be used to simulate background processing)
+        self.time_started = time.time()
 
     def HD(self, header):
         """
@@ -405,10 +412,13 @@ class Elm:
         Called by __init__() and terminate()
         """
         self.scenario = 'default'
-        self.interbyte_out_delay = 0  # seconds - UDS P1 timer - Inter byte time for ECU response
+        # seconds - UDS P1 timer - Inter byte time for ECU response
+        self.interbyte_out_delay = 0
         self.delay = 0  # seconds - UDS P2 timer - Time between tester request and ECU response or two ECU responses
-        self.multiframe_timer = 5  # seconds - UDS P3 Timer - Time between end of ECU responses and start of new tester request
-        self.max_req_timeout = 1440  # seconds - UDS P4 timer - Inter byte time for tester request (ref. req_timeout counter)
+        # seconds - UDS P3 Timer - Time between end of ECU responses and start of new tester request
+        self.multiframe_timer = 5
+        # seconds - UDS P4 timer - Inter byte time for tester request (ref. req_timeout counter)
+        self.max_req_timeout = 1440
         self.answer = {}
         self.counters = {}
         self.counters.update(self.presets)
@@ -492,7 +502,12 @@ class Elm:
             forward_serial_port=None,
             forward_serial_baudrate=None,
             forward_timeout=None):
-        self.database = {}
+        self.car = Car()
+        self.database = {
+            "rpm": 0,
+            "speed": 0,
+            "engine_temp": 70,
+        }
         self.version = ELM_VERSION
         self.header_version = ELM_HEADER_VERSION
         self.presets = {}
@@ -514,7 +529,8 @@ class Elm:
         self.forward_timeout = forward_timeout
         self.reset(0)
         self.slave_name = None  # pty port name, if pty is used
-        self.master_fd = None  # pty port FD, if pty is used, or device com port FD (IO)
+        # pty port FD, if pty is used, or device com port FD (IO)
+        self.master_fd = None
         self.slave_fd = None  # pty side used by the client application
         self.serial_fd = None  # serial COM port file descriptor (pySerial)
         self.sock_inet = None
@@ -1105,7 +1121,8 @@ class Elm:
                     try:
                         os.write(self.master_fd, c)
                     except OSError as e:
-                        if e.errno == errno.EBADF or e.errno == errno.EIO:  # [Errno 9] Bad file descriptor/[Errno 5] Input/output error
+                        # [Errno 9] Bad file descriptor/[Errno 5] Input/output error
+                        if e.errno == errno.EBADF or e.errno == errno.EIO:
                             logging.debug("Read interrupted. Terminating.")
                             self.terminate()
                             return None
@@ -1138,7 +1155,7 @@ class Elm:
             req_timeout = float(self.counters['req_timeout'])
         except Exception as e:
             if 'req_timeout' in self.counters:
-                logging.error("Improper configuration of\n\"self.counters" \
+                logging.error("Improper configuration of\n\"self.counters"
                               "['req_timeout']\": '%s' (%s). "
                               "Resetting it to %s",
                               self.counters['req_timeout'], e,
@@ -1153,7 +1170,8 @@ class Elm:
             c = c.decode("utf-8", "ignore")
             if prev_time + req_timeout < time.time() and first == False:
                 buffer = ""
-                logging.debug("'req_timeout' timeout while reading data: %s", c)
+                logging.debug(
+                    "'req_timeout' timeout while reading data: %s", c)
             if c == '\r':
                 if self.newline:
                     continue
@@ -1229,7 +1247,8 @@ class Elm:
                 else:
                     os.write(self.master_fd, i)
             except OSError as e:
-                if e.errno == errno.EBADF or e.errno == errno.EIO:  # [Errno 9] Bad file descriptor/[Errno 5] Input/output error
+                # [Errno 9] Bad file descriptor/[Errno 5] Input/output error
+                if e.errno == errno.EBADF or e.errno == errno.EIO:
                     logging.debug("Read interrupted. Terminating.")
                     self.terminate()
                     return
@@ -1305,7 +1324,7 @@ class Elm:
                         answer += (remaining_data[
                                    :(3 if sp else 2) * bytes_to_add] + nl)
                         remaining_data = remaining_data[
-                                         (3 if sp else 2) * bytes_to_add:]
+                            (3 if sp else 2) * bytes_to_add:]
                         frame_count += 1
                     answer = answer.rstrip(sp + nl)
                 else:
@@ -1337,7 +1356,7 @@ class Elm:
                         answer += (remaining_data[
                                    :(3 if sp else 2) * bytes_to_add] + nl)
                         remaining_data = remaining_data[
-                                         (3 if sp else 2) * bytes_to_add:]
+                            (3 if sp else 2) * bytes_to_add:]
                         frame_count += 1
                     answer = answer.rstrip(sp + nl)
                 else:
@@ -1525,7 +1544,7 @@ class Elm:
                                     '{:02x}'.format(x) for x in
                                     bytearray.fromhex(
                                         rd[
-                                        2:2 + 2 * uds_sid_pos_answer[sid]])
+                                            2:2 + 2 * uds_sid_pos_answer[sid]])
                                 ).upper()
                             )
                             break
@@ -1791,6 +1810,20 @@ class Elm:
         if self.scenario not in self.ObdMessage:
             logging.error("Unknown scenario %s", repr(self.scenario))
             return header, cmd, ""
+        # Handle PID 0105 (Engine Coolant Temperature)
+        if cmd == "0105":
+            # Get the current engine temperature from the database
+            # Default to 70°C if not set
+            temp = self.database.get("engine_temp", 70)
+
+        # Convert temperature to OBD-II format (offset by 40°C)
+            obd_temp = int(temp) - 40
+            obd_temp_hex = f"{obd_temp:02X}"  # Convert to 2-digit hex
+
+        # Format the OBD-II response (41 05 <temperature>)
+            response = f"41 05 {obd_temp_hex}"
+            logging.debug("PID 0105 Response: %s", response)
+            return header, cmd, response
 
         #  Manage ECU task and shared namespace
         if ecu in self.task_shared_ns:  # ECU task exists with its namespace
@@ -1937,7 +1970,8 @@ class Elm:
                 try:
                     self.shared.flow_control_fc_flag = int(size[1])
                     self.shared.flow_control_block_size = int(cmd[2:4], 16)
-                    self.shared.flow_control_separation_time = int(cmd[4:6], 16)
+                    self.shared.flow_control_separation_time = int(
+                        cmd[4:6], 16)
                 except Exception as e:
                     logging.error(
                         'Improper Flow-control-Frame %s: %s', repr(org_cmd), e)
@@ -2058,6 +2092,20 @@ class Elm:
                 if pid not in self.counters:
                     self.counters[pid] = 0
                 self.counters[pid] += 1
+                # Handle PID 0105 (Engine Coolant Temperature)
+                if pid == "0105":
+                    # Get the current engine temperature from the database
+                    # Default to 70°C if not set
+                    temp = self.database.get("engine_temp", 70)
+
+                    # Convert temperature to OBD-II format (offset by 70°C)
+                    obd_temp = int(temp) - 70
+                    obd_temp_hex = f"{obd_temp:02X}"  # Convert to 2-digit hex
+
+                    # Format the OBD-II response (41 05 <temperature>)
+                    response = f"41 05 {obd_temp_hex}"
+                    return header, cmd, response
+
                 if 'ACTION' in uc_val and uc_val['ACTION'] == 'skip':
                     logging.info("Received %s. PID %s. Action=%s", cmd, pid,
                                  uc_val['ACTION'])
