@@ -1337,7 +1337,17 @@ ObdMessage = {
             # 0.74 volt
             # 0.21 volt
             # 0.35 volt
-        },
+        },#**********************************************
+        "010C": {
+            "REQUEST": "010C", "RESPONSE": "41 0C {rpm}",
+              "DESCR": "Engine RPM"},
+        "010D": {
+            "REQUEST": "010D", "RESPONSE": "41 0D {speed}",
+              "DESCR": "Vehicle Speed"},
+        "0120": {"REQUEST": "0120", "RESPONSE": "41 20 {gear_position}",
+                  "DESCR": "Gear Position"},
+        "0121": {"REQUEST": "0121", "RESPONSE": "41 21 {gear}",
+                  "DESCR": "Gear"},     
         'OBD_COMPLIANCE': {
             'Request': '^011C' + ELM_FOOTER,
             'Descr': 'OBD Standards Compliance',

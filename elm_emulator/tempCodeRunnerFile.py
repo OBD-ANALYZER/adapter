@@ -42,6 +42,15 @@ class CarEmulatorGUI:
         speed_label = ttk.Label(mainframe, text="Current Speed: 0.0 km/h")
         speed_label.grid(column=0, columnspan=4, row=3,
                          padx=5, pady=5, sticky="w")
+        
+        # Adding labels for gear and gear position*******
+        gear_label = ttk.Label(mainframe, text="Gear: 1")
+        gear_label.grid(column=0, columnspan=4, row=4,
+                        padx=5, pady=5, sticky="w")
+
+        gear_position_label = ttk.Label(mainframe, text="Gear Position: N")
+        gear_position_label.grid(column=0, columnspan=4, row=5,
+                                 padx=5, pady=5, sticky="w")
 
         # Throttle & Brake Sliders
         def update_sliders(_):
@@ -55,6 +64,10 @@ class CarEmulatorGUI:
                 anim_speed_label.config(
                     text=f"Animation Speed Multiplier: {anim_scale_value:.1f}x")
 
+                # Update gear and gear position labels''***************
+                gear_label.config(text=f"Gear: {self.car.gear}")
+                gear_position_label.config(text=f"Gear Position: {self.car.gear_position}")
+
         throttle_slider = ttk.Scale(
             mainframe, from_=100, to=0, orient="vertical", command=update_sliders)
         throttle_slider.grid(column=1, row=0, padx=5, pady=5, sticky=(N, S))
@@ -66,3 +79,21 @@ class CarEmulatorGUI:
         brake_slider.grid(column=2, row=0, padx=5, pady=5, sticky=(N, S))
         brake_label = ttk.Label(mainframe, text="Brake\n0 %")
         brake_label.grid(column=3, row=0, padx=5, pady=5, sticky="w")
+
+
+
+        #*********************************'
+
+        def update_values():
+            """
+            Update the car's state (RPM, speed, engine temperature, gear, and gear position).
+            """
+            if not self.lock:
+                self.car.update(self.car.throttle_position, self.car.brake_position)
+                rpm_label.config(text=f"Current RPM: {self.car.rpm:.0f}")
+                speed_label.config(text=f"Current Speed: {self.car.speed:.1f} km/h")
+                temp_label.config(text=f"Engine Temperature: {self.car.engine_temp:.1f} °C")
+                gear_label.config(text=f"Gear: {self.car.gear}")  # Update gear label
+                gear_position_label.config(text=f"Gear Position: {self.car.gear_position}")  # Update gear position label
+
+            root.after(10, update_values)
