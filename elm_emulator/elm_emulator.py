@@ -507,6 +507,7 @@ class Elm:
             "rpm": 0,
             "speed": 0,
             "engine_temp": 70,
+            "fuel_level": 100.0
         }
         self.version = ELM_VERSION
         self.header_version = ELM_HEADER_VERSION
@@ -1823,6 +1824,19 @@ class Elm:
         # Format the OBD-II response (41 05 <temperature>)
             response = f"41 05 {obd_temp_hex}"
             logging.debug("PID 0105 Response: %s", response)
+            return header, cmd, response
+        # Handle fuel_consumpustion PID
+        if cmd == "012F":
+            fuel_level_percent = int(
+                (self.car.database["fuel_level"] / self.car.FUEL_TANK_CAPACITY) * 100)
+            # Format: 41 <PID> <value>
+            response = f"41 2F {fuel_level_percent:02X}"
+            return header, cmd, response
+        elif cmd == "015E":  # PID 0x5E - Engine Fuel Rate
+            # Convert L/s to L/h
+            fuel_rate_lph = int(
+                self.car.database["fuel_consumption_rate"] * 3600)
+            response = f"41 5E {fuel_rate_lph:04X}"  # Format: 41 <PID> <value>
             return header, cmd, response
 
         #  Manage ECU task and shared namespace

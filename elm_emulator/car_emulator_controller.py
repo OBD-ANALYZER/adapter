@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import time
-
 from tkinter import *
 from tkinter import ttk, messagebox
 
@@ -65,11 +64,14 @@ class CarEmulatorGUI:
         temp_label = ttk.Label(mainframe, text="Engine Temperature: 0.0 °C")
         temp_label.grid(column=0, columnspan=4, row=3,
                         rowspan=1, padx=2, pady=2)
+        fuel_label = ttk.Label(mainframe, text="Fuel Level: 100.0 %")
+        fuel_label.grid(column=0, columnspan=4, row=4,
+                        rowspan=1, padx=2, pady=2)
 
         selected = StringVar()
         presets = Variable(value=self.presets)
         listbox = Listbox(mainframe, listvariable=presets, selectmode='browse')
-        listbox.grid(column=1, columnspan=2, row=4, rowspan=4,
+        listbox.grid(column=1, columnspan=2, row=5, rowspan=4,
                      padx=2, pady=2, sticky=(N, W, E, S))
         listbox.bind('<<ListboxSelect>>', lambda event: selected.set(
             self.presets[listbox.curselection()[0]]))
@@ -134,19 +136,19 @@ class CarEmulatorGUI:
 
         load_curve_button = ttk.Button(
             mainframe, text="Load Hermite Curve", command=load_curve)
-        load_curve_button.grid(column=0, columnspan=1, row=5,
+        load_curve_button.grid(column=0, columnspan=1, row=6,
                                rowspan=2, padx=2, pady=2, sticky=(E, N, S))
 
         file_name_entry = ttk.Entry(mainframe)
-        file_name_entry.grid(column=3, columnspan=1, row=5,
+        file_name_entry.grid(column=3, columnspan=1, row=6,
                              rowspan=1, padx=2, pady=2, sticky=(W, N, S))
         save_curve_button = ttk.Button(
             mainframe, text="Save Hermite Curve", command=save_curve)
-        save_curve_button.grid(column=3, columnspan=1, row=6,
+        save_curve_button.grid(column=3, columnspan=1, row=7,
                                rowspan=1, padx=2, pady=2, sticky=(W, N, S))
         remove_button = ttk.Button(
             mainframe, text="remove", command=remove_curve)
-        remove_button.grid(column=3, row=7, padx=2, pady=2, sticky=(W, N, S))
+        remove_button.grid(column=3, row=8, padx=2, pady=2, sticky=(W, N, S))
 
         def animate_curve():
             if len(animation_curve_gui.curve.points) > 1:
@@ -167,7 +169,6 @@ class CarEmulatorGUI:
 
                 self.car.speed = y
                 speed_label.config(text=f"Current Speed: {y:.1f} km/h")
-                # logging.debug(f"Current Speed: {y:2f} km/h")
                 self.emulator.database["speed"] = y
                 # Calculate and update the engine temperature based on the speed
                 # 70°C at speed 0, increases by 0.1°C per km/h
@@ -175,6 +176,13 @@ class CarEmulatorGUI:
                 temp_label.config(
                     text=f"Engine Temperature: {self.car.engine_temp:.1f} °C")
                 self.emulator.database["engine_temp"] = self.car.engine_temp
+                # Update fuel level
+                self.car.fuel_level -= self.car.throttle_position * self.car.fuel_consumption_rate
+                if self.car.fuel_level < 0:
+                    self.car.fuel_level = 0
+                fuel_label.config(
+                    text=f"Fuel Level: {self.car.fuel_level:.1f} %")
+                self.emulator.database["fuel_level"] = self.car.fuel_level
                 if t < 1.0:
                     root.after(10, animate, duration, start_time)
                 else:
@@ -189,19 +197,19 @@ class CarEmulatorGUI:
         anim_speed_slider = ttk.Scale(
             mainframe, from_=0.1, to=2.0, orient="horizontal", value=1, command=update_sliders)
         anim_speed_slider.grid(column=1, columnspan=2,
-                               row=8, padx=2, pady=2, sticky=(W, E))
+                               row=9, padx=2, pady=2, sticky=(W, E))
         anim_speed_label = ttk.Label(
             mainframe, text="Animation Speed Multiplier: 1.0x")
-        anim_speed_label.grid(column=0, columnspan=1, row=8,
+        anim_speed_label.grid(column=0, columnspan=1, row=9,
                               padx=2, pady=2, sticky=(E, N, S))
 
         animate_curve_button = ttk.Button(
             mainframe, text="Animate Hermite Curve", command=animate_curve)
         animate_curve_button.grid(
-            column=3, columnspan=1, row=8, padx=2, pady=2, sticky=(W, N, S))
+            column=3, columnspan=1, row=9, padx=2, pady=2, sticky=(W, N, S))
 
         graphframe = ttk.Frame(mainframe, padding="1 1 1 1")
-        graphframe.grid(column=0, columnspan=4, row=9,
+        graphframe.grid(column=0, columnspan=4, row=10,
                         padx=2, pady=2, sticky=(N, S, E, W))
         animation_curve_gui = AnimationCurveEditor(graphframe)
 
@@ -210,23 +218,24 @@ class CarEmulatorGUI:
                 self.car.update(self.car.throttle_position,
                                 self.car.brake_position)
                 rpm_label.config(text=f"Current RPM: {self.car.rpm:.0f}")
-                # logging.debug(f"Current RPM: {self.car.rpm:.2f}")
                 self.emulator.database["rpm"] = self.car.rpm
                 speed_label.config(
                     text=f"Current Speed: {self.car.speed:.1f} km/h")
-                # logging.debug(f"Current Speed: {self.car.speed:.2f} km/h")
                 self.emulator.database["speed"] = self.car.speed
                 temp_label.config(
                     text=f"Engine Temperature: {self.car.engine_temp:.1f} °C")
-                # logging.debug(f"Engine Temperature: {self.car.engine_temp:.2f} °C")
                 self.emulator.database["engine_temp"] = self.car.engine_temp
+                # Update fuel level
+                fuel_label.config(
+                    text=f"Fuel Level: {self.car.fuel_level:.1f} %")
+                self.emulator.database["fuel_level"] = self.car.fuel_level
 
             root.after(10, update_values)
 
         # fill extra space, if window is resized
         mainframe.columnconfigure([0, 1, 2, 3], weight=1)
         # fill extra space, if window is resized
-        mainframe.rowconfigure([0, 4, 5, 6, 7, 9], weight=1)
+        mainframe.rowconfigure([0, 5, 6, 7, 8, 10], weight=1)
 
         update_values()
         root.mainloop()

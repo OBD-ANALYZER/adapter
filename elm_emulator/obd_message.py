@@ -13,9 +13,12 @@ ECU_R_ADDR_K = "7DA"
 ECU_ADDR_H = "7E2"  # HVECU address (Hybrid control module)
 ECU_R_ADDR_H = "7EA"  # Responses sent by HVECU (Hybrid control module) 7E2/7EA
 ECU_ADDR_E = "7E0"  # Engine control module ECU address
-ECU_R_ADDR_E = "7E8"  # Responses sent by Engine ECU - ECM (engine control module) 7E0/7E8
-ECU_ADDR_T = "7E1"  # Transmission control module ECU address (transmission control module)
-ECU_R_ADDR_T = "7E9"  # Responses sent by Transmission ECU - TCM (transmission control module) 7E1/7E9
+# Responses sent by Engine ECU - ECM (engine control module) 7E0/7E8
+ECU_R_ADDR_E = "7E8"
+# Transmission control module ECU address (transmission control module)
+ECU_ADDR_T = "7E1"
+# Responses sent by Transmission ECU - TCM (transmission control module) 7E1/7E9
+ECU_R_ADDR_T = "7E9"
 ECU_ADDR_U = "7E2"
 ECU_R_ADDR_U = "7EA"
 ECU_ADDR_M = "7E5"  # Continental power train ECU
@@ -108,7 +111,8 @@ ObdMessage = {
         'AT_BYPASS_INIT': {
             'Request': '^ATBI$',
             'Descr': 'AT Bypass the Initialization sequence',
-            'Response': ELM_R_OK  # ignored at the moment: just answer OK (to be revised)
+            # ignored at the moment: just answer OK (to be revised)
+            'Response': ELM_R_OK
         },
         'AT_CAF': {
             'Request': '^ATCAF[01]$',
@@ -182,9 +186,10 @@ ObdMessage = {
             'Request': '^ATKW$',
             'Descr': 'AT DISPLAY KEY WORDS',
             'Log': '"Display keywords"',
-            'ResponseFooter': \
-                lambda self, cmd, pid, uc_val: \
-                    self.counters["cmd_atkw"] + " " if "cmd_atkw" in self.counters else "0 "
+            'ResponseFooter':
+            lambda self, cmd, pid, uc_val:
+            self.counters["cmd_atkw"] +
+                " " if "cmd_atkw" in self.counters else "0 "
         },
         'AT_SKW': {
             'Request': '^ATKW[01]$',
@@ -207,20 +212,21 @@ ObdMessage = {
             'Descr': 'AT Display of the DLC on/off',
             'Exec': 'self.counters["cmd_dlc"] = (cmd[3] == "1")',
             'Log': '"Set DLC %s", self.counters["cmd_dlc"]',
-            'Response': ELM_R_OK  # ignored at the moment: just answer OK (to be revised)
+            # ignored at the moment: just answer OK (to be revised)
+            'Response': ELM_R_OK
         },
         'AT_DESCRIBE_PROTO': {
             'Request': '^ATDP$',
             'Descr': 'AT set DESCRIBE PROTO',
             'Exec': 'time.sleep(0.5)',
-            'ResponseHeader': \
-                lambda self, cmd, pid, uc_val: \
-                    ST('AUTO, ISO 15765-4 (CAN 11/500) ') \
-                        if "cmd_proto" not in self.counters or \
-                           not self.counters['cmd_proto'] or \
-                           self.counters['cmd_proto'] == "0" or \
-                           self.counters['cmd_proto'] == "6" \
-                        else ST("ISO 15765-4 (CAN 11/500)")
+            'ResponseHeader':
+            lambda self, cmd, pid, uc_val:
+                    ST('AUTO, ISO 15765-4 (CAN 11/500) ')
+            if "cmd_proto" not in self.counters or
+            not self.counters['cmd_proto'] or
+            self.counters['cmd_proto'] == "0" or
+            self.counters['cmd_proto'] == "6"
+            else ST("ISO 15765-4 (CAN 11/500)")
         },
         'AT_DESCRIBE_PROTO_N': {
             'Request': '^ATDPN$',
@@ -245,9 +251,9 @@ ObdMessage = {
         'AT_I': {
             'Request': '^ATI$',
             'Descr': 'AT ELM327 version string',
-            'ResponseHeader': \
-                lambda self, cmd, pid, uc_val: \
-                    ST(self.counters['cmd_version'])
+            'ResponseHeader':
+            lambda self, cmd, pid, uc_val:
+            ST(self.counters['cmd_version'])
         },
         'AT_IGN': {
             'Request': '^ATIGN$',
@@ -279,10 +285,10 @@ ObdMessage = {
             'Log':
                 '"Volt = {:.1f}".format('
                 '0.1 * abs(9 - (self.counters[pid] + 9) % 18) + 13)',
-            'ResponseHeader': \
-                lambda self, cmd, pid, uc_val: \
-                    "<string>{:.1f}</string>".format( \
-                        0.1 * abs(9 - (self.counters[pid] + 9) % 18) + 13),
+            'ResponseHeader':
+                lambda self, cmd, pid, uc_val:
+            "<string>{:.1f}</string>".format(
+                0.1 * abs(9 - (self.counters[pid] + 9) % 18) + 13),
             'Response': ST("V")
         },
         'AT_SPACES': {
@@ -405,18 +411,18 @@ ObdMessage = {
             'Request': '^ATWS$',
             'Descr': 'AT WARM START',
             'Log': '"Warm start and sleep 0.1 seconds"',
-            #'Exec': 'self.reset(0.1)',
-            'ResponseHeader': \
-                lambda self, cmd, pid, uc_val: \
-                    ST(self.header_version + self.counters['cmd_version'])
+            # 'Exec': 'self.reset(0.1)',
+            'ResponseHeader':
+                lambda self, cmd, pid, uc_val:
+            ST(self.header_version + self.counters['cmd_version'])
         },
         'AT_RESET': {
             'Request': '^ATZ$',
             'Descr': 'AT RESET',
             'Log': '"Reset and sleep 0.5 seconds"',
             'Exec': 'self.reset(0.5)',
-            'ResponseFooter': \
-                lambda self, cmd, pid, uc_val: \
+            'ResponseFooter':
+                lambda self, cmd, pid, uc_val:
                     ST(self.header_version + self.counters['cmd_version'])
         },
         'AT_SET_TIMEOUT': {
@@ -457,46 +463,46 @@ ObdMessage = {
             'Request': '^ATPPS$',
             'Descr': 'AT Print programmable parameter summary.',
             'Response': ST('00:FF F 01:FF F 02:FF F 03:32 F') +
-                        ST('04:01 F 05:FF F 06:F1 F 07:09 F') +
-                        ST('08:FF F 09:00 F 0A:0A F 0B:FF F') +
-                        ST('0C:68 F 0D:0D F 0E:FF F 0F:FF F') +
-                        ST('10:0D F 11:00 F 12:FF F 13:32 F') +
-                        ST('14:FF F 15:FF F 16:FF F 17:92 F') +
-                        ST('18:00 F 19:FF F 1A:FF F 1B:FF F') +
-                        ST('1C:FF F 1D:FF F 1E:FF F 1F:FF F') +
-                        ST('20:FF F 21:FF F 22:FF F 23:FF F') +
-                        ST('24:00 F 25:00 F 26:00 F 27:FF F') +
-                        ST('28:FF F 29:FF F 2A:38 F 2B:02 F') +
-                        ST('2C:E0 F 2D:04 F 2E:80 F 2F:0A F')
+            ST('04:01 F 05:FF F 06:F1 F 07:09 F') +
+            ST('08:FF F 09:00 F 0A:0A F 0B:FF F') +
+            ST('0C:68 F 0D:0D F 0E:FF F 0F:FF F') +
+            ST('10:0D F 11:00 F 12:FF F 13:32 F') +
+            ST('14:FF F 15:FF F 16:FF F 17:92 F') +
+            ST('18:00 F 19:FF F 1A:FF F 1B:FF F') +
+            ST('1C:FF F 1D:FF F 1E:FF F 1F:FF F') +
+            ST('20:FF F 21:FF F 22:FF F 23:FF F') +
+            ST('24:00 F 25:00 F 26:00 F 27:FF F') +
+            ST('28:FF F 29:FF F 2A:38 F 2B:02 F') +
+            ST('2C:E0 F 2D:04 F 2E:80 F 2F:0A F')
         },
         'AT_MA': {
             'Request': '^ATMA$',
             'Descr': 'AT Monitor all messages',
             'Response': ST('C4 ') + ST('245 00 ') +
-                        ST('247 06 00200283 00 3127 00 ') +
-                        ST('260 0262 01 00 ') + ST('020 00 ') +
-                        ST('0B4 002344 000AA 1A 6F 1A 6212127 00 ') +
-                        ST('2247 06 020200260 411 0040AA 1A 6F 283 00 ') +
-                        ST('020 00 ') +
-                        ST('0B4 00 001273F9 58 5C 560AA 1 22245 00 '
-                           '3A026247020 02006262 0139B 0127 00 ') +
-                        ST('1394 0020 00 ') + ST('0B4 00 ') +
-                        ST('0250344 00 260 08 FF F1STOPPED') + ST('') +
-                        ST('>TMA') + ST('?') + ST('') + ST('>ATMA') +
-                        ST('0AA 1A 6F 1A 6F 1A 6F 1A 6F ') +
-                        ST('224 00 ') + ST('127 00 ') + ST('344 00 ') +
-                        ST('260 08 FF F2 00 00 FF F2 54 A3 ') + ST('020 00 ') +
-                        ST('230 00 ') + ST('025 00 ') + ST('024 01 FD ') +
-                        ST('1C4 06 7D 00 00 00 00 00 ') +
-                        ST('48B 80 05 05 05 00 00 00 00 ') +
-                        ST('245 00 ') + ST('0AA 1A 6F 1A 6F 1A 6F 1A 6F ') +
-                        ST('2A4 00 ') + ST('361 80 00 00 00 01 FD 01 FB ') +
-                        ST('38B 00 ') + ST('247 06 00 FF 00 00 00 00 ') +
-                        ST('413 01 01 ') + ST('127 00 ') + ST('020 00 ') +
-                        ST('0B4 00 ') + ST('025 00 ') +
-                        ST('02266 10 342F 283 23')
+            ST('247 06 00200283 00 3127 00 ') +
+            ST('260 0262 01 00 ') + ST('020 00 ') +
+            ST('0B4 002344 000AA 1A 6F 1A 6212127 00 ') +
+            ST('2247 06 020200260 411 0040AA 1A 6F 283 00 ') +
+            ST('020 00 ') +
+            ST('0B4 00 001273F9 58 5C 560AA 1 22245 00 '
+               '3A026247020 02006262 0139B 0127 00 ') +
+            ST('1394 0020 00 ') + ST('0B4 00 ') +
+            ST('0250344 00 260 08 FF F1STOPPED') + ST('') +
+            ST('>TMA') + ST('?') + ST('') + ST('>ATMA') +
+            ST('0AA 1A 6F 1A 6F 1A 6F 1A 6F ') +
+            ST('224 00 ') + ST('127 00 ') + ST('344 00 ') +
+            ST('260 08 FF F2 00 00 FF F2 54 A3 ') + ST('020 00 ') +
+            ST('230 00 ') + ST('025 00 ') + ST('024 01 FD ') +
+            ST('1C4 06 7D 00 00 00 00 00 ') +
+            ST('48B 80 05 05 05 00 00 00 00 ') +
+            ST('245 00 ') + ST('0AA 1A 6F 1A 6F 1A 6F 1A 6F ') +
+            ST('2A4 00 ') + ST('361 80 00 00 00 01 FD 01 FB ') +
+            ST('38B 00 ') + ST('247 06 00 FF 00 00 00 00 ') +
+            ST('413 01 01 ') + ST('127 00 ') + ST('020 00 ') +
+            ST('0B4 00 ') + ST('025 00 ') +
+            ST('02266 10 342F 283 23')
         },
-        #------------------------------------------------------------
+        # ------------------------------------------------------------
         # ST Extensions used to configure the STN11xx family of OBD interpreters
         'ST_PROTO': {
             'Request': '^STP[0-9]+$',
@@ -588,25 +594,25 @@ ObdMessage = {
         'ELM_PIDS_A': {
             'Request': '^0100$',
             'Descr': 'PIDS_A',
-            'ResponseHeader': \
-                lambda self, cmd, pid, uc_val: \
-                    '<string>SEARCHING...</string>'
-                    '<exec>time.sleep(4.5)</exec>' + ST('') + \
-                    ST('UNABLE TO CONNECT') \
-                        if self.counters[pid] == 1 else \
-                        self.choice([ST('NO DATA'), ST('BUS INIT:ERROR')]),
+            'ResponseHeader':
+            lambda self, cmd, pid, uc_val:
+            '<string>SEARCHING...</string>'
+            '<exec>time.sleep(4.5)</exec>' + ST('') +
+            ST('UNABLE TO CONNECT')
+            if self.counters[pid] == 1 else
+            self.choice([ST('NO DATA'), ST('BUS INIT:ERROR')]),
             'Priority': 5
         },
         'ELM_MIDS_A': {
             'Request': '^0600$',
             'Descr': 'MIDS_A',
-            'ResponseHeader': \
-                lambda self, cmd, pid, uc_val: \
-                    '<string>SEARCHING...</string>'
-                    '<exec>time.sleep(4.5)</exec>' + ST('') + \
-                    ST('UNABLE TO CONNECT') \
-                        if self.counters[pid] == 1 else \
-                        self.choice([ST('NO DATA'), ST('BUS INIT:ERROR')]),
+            'ResponseHeader':
+            lambda self, cmd, pid, uc_val:
+            '<string>SEARCHING...</string>'
+            '<exec>time.sleep(4.5)</exec>' + ST('') +
+            ST('UNABLE TO CONNECT')
+            if self.counters[pid] == 1 else
+            self.choice([ST('NO DATA'), ST('BUS INIT:ERROR')]),
             'Priority': 5
         },
         'AT_DESCRIBE_PROTO_N': {
@@ -639,7 +645,8 @@ ObdMessage = {
             'Descr': 'Engine Coolant Temperature',
             "ResponseFooter": lambda self, cmd, pid, uc_val: (
                 f"{(temp := int(self.database['engine_temp']) - 40):02X} "
-                + " " + HD(ECU_R_ADDR_E) + SZ("03") + DT("41 05 " + f"{temp:02X}")
+                + " " + HD(ECU_R_ADDR_E) + SZ("03") +
+                DT("41 05 " + f"{temp:02X}")
             )
         },
         'INTAKE_PRESSURE': {
@@ -650,22 +657,22 @@ ObdMessage = {
         'RPM': {
             'Request': '^010C' + ELM_FOOTER,
             'Descr': 'Engine RPM',
-            'ResponseFooter': \
-                lambda self, cmd, pid, uc_val: (
-                        f"{((rpm := int(self.database['rpm'] * 4)) >> 8) & 0xFF:02X} {rpm & 0xFF:02X} "
-                        + ' ' + HD(ECU_R_ADDR_H) + SZ('04') + DT('41 0C '
-                        + f"{(rpm >> 8) & 0xFF:02X} {rpm & 0xFF:02X}")
-                )
+            'ResponseFooter':
+            lambda self, cmd, pid, uc_val: (
+                f"{((rpm := int(self.database['rpm'] * 4)) >> 8) & 0xFF:02X} {rpm & 0xFF:02X} "
+                + ' ' + HD(ECU_R_ADDR_H) + SZ('04') + DT('41 0C '
+                                                         + f"{(rpm >> 8) & 0xFF:02X} {rpm & 0xFF:02X}")
+            )
         },
         'SPEED': {
             'Request': '^010D' + ELM_FOOTER,
             'Descr': 'Vehicle Speed',
-            'ResponseFooter': \
-                lambda self, cmd, pid, uc_val: (
-                        f"{(speed := int(self.database['speed'])):02X} "
-                        + ' ' + HD(ECU_R_ADDR_H) + SZ('03') + DT('41 0D '
-                        + f"{speed:02X}")
-                )
+            'ResponseFooter':
+            lambda self, cmd, pid, uc_val: (
+                f"{(speed := int(self.database['speed'])):02X} "
+                + ' ' + HD(ECU_R_ADDR_H) + SZ('03') + DT('41 0D '
+                                                         + f"{speed:02X}")
+            )
         },
         'INTAKE_TEMP': {
             'Request': '^010F' + ELM_FOOTER,
@@ -772,15 +779,25 @@ ObdMessage = {
             'Descr': 'Fuel injection timing',
             'Response': PA('66 00')
         },
+        'FUEL_LEVEL': {
+            'Request': '^012F' + ELM_FOOTER,
+            'Descr': 'Fuel Level Input',
+            'ResponseFooter': lambda self, cmd, pid, uc_val: (
+                f"{(fuel_level_percent := int((self.car.database['fuel_level'] / self.car.FUEL_TANK_CAPACITY) * 100)):02X} "
+                + ' ' + HD(ECU_R_ADDR_E) + SZ('03') +
+                DT('41 2F ' + f"{fuel_level_percent:02X}")
+            )
+
+        },
         # Supported PIDs for protocols
         'ELM_PIDS_A': {
             'Request': '^0100' + ELM_FOOTER,
             'Descr': 'PIDS_A',
-            'ResponseHeader': \
-                lambda self, cmd, pid, uc_val: \
-                    '<string>SEARCHING...</string>'
-                    '<exec>time.sleep(3)</exec>' + ST('') \
-                        if self.counters[pid] == 1 else "",
+            'ResponseHeader':
+            lambda self, cmd, pid, uc_val:
+            '<string>SEARCHING...</string>'
+            '<exec>time.sleep(3)</exec>' + ST('')
+            if self.counters[pid] == 1 else "",
             'Response':
                 HD(ECU_R_ADDR_H) + SZ('06') + DT('41 00 98 3A 80 13') +
                 PA('BE 3F A8 13')
@@ -847,9 +864,11 @@ ObdMessage = {
             'Descr': 'Vehicle Identification Number',
             'Response': [
                 PA("01 57 50 30 5A 5A 5A 39 39 "
-                   "5A 54 53 33 39 30 30 30 30"),  # https://www.autodna.com/vin/WP0ZZZ99ZTS390000, https://it.vin-info.com/libro-denuncia/WP0ZZZ99ZTS390000
+                   # https://www.autodna.com/vin/WP0ZZZ99ZTS390000, https://it.vin-info.com/libro-denuncia/WP0ZZZ99ZTS390000
+                   "5A 54 53 33 39 30 30 30 30"),
                 PA("01 4D 41 54 34 30 33 30 39 "
-                   "36 42 4E 4C 30 30 30 30 30"),  # https://community.carloop.io/t/how-to-request-vin/153/11
+                   # https://community.carloop.io/t/how-to-request-vin/153/11
+                   "36 42 4E 4C 30 30 30 30 30"),
             ]
         },
         'CALIBRATION_ID_MESSAGE_COUNT': {
@@ -2090,8 +2109,8 @@ ObdMessage = {
             'Descr': 'O2 Sensor Monitor Bank 1 - Sensor 1',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('13 46 01 8E 0B 02 27') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('00 A9 4D BA 01 91 8D') +
-                        HD(ECU_R_ADDR_E) + SZ('22') + DT('01 9D 00 B4 02 2F 00')
+            HD(ECU_R_ADDR_E) + SZ('21') + DT('00 A9 4D BA 01 91 8D') +
+            HD(ECU_R_ADDR_E) + SZ('22') + DT('01 9D 00 B4 02 2F 00')
         },
         'MONITOR_O2_B1S2': {
             'Request': '^0602' + ELM_FOOTER,
@@ -2120,14 +2139,14 @@ ObdMessage = {
             'Descr': 'Catalyst Monitor Bank 1',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('0A 46 21 A9 86 02 E5') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('02 D0 7F FF 00 00 00')
+            HD(ECU_R_ADDR_E) + SZ('21') + DT('02 D0 7F FF 00 00 00')
         },
         'MONITOR_EGR_B1': {
             'Request': '^0631' + ELM_FOOTER,
             'Descr': 'EGR Monitor Bank 1',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('0A 46 31 BD 17 07 47') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('00 63 FF FF 00 00 00')
+            HD(ECU_R_ADDR_E) + SZ('21') + DT('00 63 FF FF 00 00 00')
         },
         'MIDS_C': {
             'Request': '^0640' + ELM_FOOTER,
@@ -2158,40 +2177,40 @@ ObdMessage = {
             'Descr': 'Misfire Monitor General Data',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('13 46 A1 0B 24 00 00') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('00 00 FF FF A1 0C 24') +
-                        HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 00 FF FF 00')
+            HD(ECU_R_ADDR_E) + SZ('21') + DT('00 00 FF FF A1 0C 24') +
+            HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 00 FF FF 00')
         },
         'MONITOR_MISFIRE_CYLINDER_1': {
             'Request': '^06A2' + ELM_FOOTER,
             'Descr': 'Misfire Cylinder 1 Data',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('13 46 A2 0B 24 00 00') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('00 00 FF FF A2 0C 24') +
-                        HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 00 FF FF 00')
+            HD(ECU_R_ADDR_E) + SZ('21') + DT('00 00 FF FF A2 0C 24') +
+            HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 00 FF FF 00')
         },
         'MONITOR_MISFIRE_CYLINDER_2': {
             'Request': '^06A3' + ELM_FOOTER,
             'Descr': 'Misfire Cylinder 2 Data',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('13 46 A3 0B 24 00 00') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('00 00 FF FF A3 0C 24') +
-                        HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 00 FF FF 00')
+            HD(ECU_R_ADDR_E) + SZ('21') + DT('00 00 FF FF A3 0C 24') +
+            HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 00 FF FF 00')
         },
         'MONITOR_MISFIRE_CYLINDER_3': {
             'Request': '^06A4' + ELM_FOOTER,
             'Descr': 'Misfire Cylinder 3 Data',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('13 46 A4 0B 24 00 00') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('00 00 FF FF A4 0C 24') +
-                        HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 00 FF FF 00')
+            HD(ECU_R_ADDR_E) + SZ('21') + DT('00 00 FF FF A4 0C 24') +
+            HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 00 FF FF 00')
         },
         'MONITOR_MISFIRE_CYLINDER_4': {
             'Request': '^06A5' + ELM_FOOTER,
             'Descr': 'Misfire Cylinder 4 Data',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('13 46 A5 0B 24 00 00') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('00 00 FF FF A5 0C 24') +
-                        HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 00 FF FF 00')
+            HD(ECU_R_ADDR_E) + SZ('21') + DT('00 00 FF FF A5 0C 24') +
+            HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 00 FF FF 00')
         },
         # -------------------------------------------------------------------
         # MODE 07 - unconfirmed fault codes - Sending continuous monitoring system test results (pending code)
@@ -2244,44 +2263,44 @@ ObdMessage = {
             'Descr': 'Calibration ID',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('23 49 04 02 33 31 32') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('4A 36 30 30 30 00 00') +
-                        HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 00 00 00 41') +
-                        HD(ECU_R_ADDR_E) + SZ('23') + DT('34 37 30 31 30 30 30') +
-                        HD(ECU_R_ADDR_E) + SZ('24') + DT('00 00 00 00 00 00 00') +
-                        HD(ECU_R_ADDR_E) + SZ('25') + DT('00 00 00 00 00 00 00')
+            HD(ECU_R_ADDR_E) + SZ('21') + DT('4A 36 30 30 30 00 00') +
+            HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 00 00 00 41') +
+            HD(ECU_R_ADDR_E) + SZ('23') + DT('34 37 30 31 30 30 30') +
+            HD(ECU_R_ADDR_E) + SZ('24') + DT('00 00 00 00 00 00 00') +
+            HD(ECU_R_ADDR_E) + SZ('25') + DT('00 00 00 00 00 00 00')
         },
-        #'CVN_MESSAGE_COUNT': {
+        # 'CVN_MESSAGE_COUNT': {
         #    'Request': '^0905' + ELM_MAX_RESP,
         #    'Descr': 'CVN Message Count for PID 06',
         #    ... (incomplete)
-        #},
+        # },
         'CVN': {
             'Request': '^0906' + ELM_FOOTER,
             'Descr': 'Calibration Verification Numbers',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('0B 49 06 02 69 53 CD') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('4B 61 1F 6E F2 00 00')
+            HD(ECU_R_ADDR_E) + SZ('21') + DT('4B 61 1F 6E F2 00 00')
         },
         'PERF_TRACKING_SPARK': {
             'Request': '^0908' + ELM_FOOTER,
             'Descr': 'In-use performance tracking (spark ignition)',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('2B 49 08 14 00 18 00') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('9A 00 11 00 18 00 00') +
-                        HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 14 00 18 00') +
-                        HD(ECU_R_ADDR_E) + SZ('23') + DT('00 00 00 00 1C 00 18') +
-                        HD(ECU_R_ADDR_E) + SZ('24') + DT('00 00 00 00 00 00 00') +
-                        HD(ECU_R_ADDR_E) + SZ('25') + DT('00 00 0C 00 18 00 00') +
-                        HD(ECU_R_ADDR_E) + SZ('26') + DT('00 00 00 00 00 00 00')
+            HD(ECU_R_ADDR_E) + SZ('21') + DT('9A 00 11 00 18 00 00') +
+            HD(ECU_R_ADDR_E) + SZ('22') + DT('00 00 00 14 00 18 00') +
+            HD(ECU_R_ADDR_E) + SZ('23') + DT('00 00 00 00 1C 00 18') +
+            HD(ECU_R_ADDR_E) + SZ('24') + DT('00 00 00 00 00 00 00') +
+            HD(ECU_R_ADDR_E) + SZ('25') + DT('00 00 0C 00 18 00 00') +
+            HD(ECU_R_ADDR_E) + SZ('26') + DT('00 00 00 00 00 00 00')
         },
         'ECU_NAME': {
             'Request': '^090A' + ELM_FOOTER,
             'Descr': 'ECU name',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('17 49 0A 01 45 43 4D') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('00 2D 45 6E 67 69 6E') +
-                        HD(ECU_R_ADDR_E) + SZ('22') + DT('65 43 6F 6E 74 72 6F') +
-                        HD(ECU_R_ADDR_E) + SZ('23') + DT('6C 00 00 00 00 00 00')
+            HD(ECU_R_ADDR_E) + SZ('21') + DT('00 2D 45 6E 67 69 6E') +
+            HD(ECU_R_ADDR_E) + SZ('22') + DT('65 43 6F 6E 74 72 6F') +
+            HD(ECU_R_ADDR_E) + SZ('23') + DT('6C 00 00 00 00 00 00')
         },
         # -------------------------------------------------------------------
         # Manage Trouble codes
@@ -2508,7 +2527,8 @@ ObdMessage = {
             'Max': '300',
             'Unit': 'F',
             'Header': ECU_ADDR_K,
-            'Response': HD(ECU_R_ADDR_K) + SZ('03') + DT('61 A1 80')  # Wrong value! To be tested
+            # Wrong value! To be tested
+            'Response': HD(ECU_R_ADDR_K) + SZ('03') + DT('61 A1 80')
         },
         # -------------------------------------------------------------------
         # UDS - MODE 27 - Security Access
@@ -2545,14 +2565,16 @@ ObdMessage = {
         # -------------------------------------------------------------------
         # UDS - MODE 2E - writeDataByIdentifier Service (Appl. Inc.)
         'UDS_WF': {
-            'Request': '^2EF15A' + ELM_DATA_FOOTER,  # 2E,F1,5A - Write Fingerprint (Continental)
+            # 2E,F1,5A - Write Fingerprint (Continental)
+            'Request': '^2EF15A' + ELM_DATA_FOOTER,
             'Descr': 'Write Fingerprint',
             'Info': '"Decoded fingerprint %s", cmd[6:]',
             'Header': ECU_ADDR_M,
             'Response': PA('')
         },
         'UDS_W_VIN': {
-            'Request': '^2EF190' + ELM_DATA_FOOTER,  # 2E,F1,90 - write dataIdentifier 0xF190 (VIN)
+            # 2E,F1,90 - write dataIdentifier 0xF190 (VIN)
+            'Request': '^2EF190' + ELM_DATA_FOOTER,
             'Descr': 'Write VIN',
             'Info': '"Decoded VIN: %s", repr(bytearray.fromhex(cmd[6:]).decode())',
             'Header': ECU_ADDR_M,
@@ -2593,7 +2615,7 @@ ObdMessage = {
             'Descr': 'UDS Tester Present - no answer',
             'Response': None
         },
-        #------------------------------------------------------------
+        # ------------------------------------------------------------
         # Custom OBD Commands - Toyota Prius
         # MODE 01
         'CUSTOM_SOC': {
@@ -2617,7 +2639,7 @@ ObdMessage = {
                 HD(ECU_R_ADDR_H) + SZ('03') + DT('41 5B 9A')
             ]
         },
-        #------------------------------------------------------------
+        # ------------------------------------------------------------
         # UDS - MODE 21 - Read Data By Local ID - Toyota Prius
         "CUSTOM_CAL'D_LOAD": {
             'Request': '^2101' + ELM_FOOTER,
@@ -3160,7 +3182,8 @@ ObdMessage = {
             'Header': ECU_ADDR_H,
             'Response': HD(ECU_R_ADDR_H) + SZ('10') + DT('10 61 95 17 16 15 16') +
                         HD(ECU_R_ADDR_H) + SZ('21') + DT('16 16 16 16 16 16 16') +
-                        HD(ECU_R_ADDR_H) + SZ('22') + DT('16 16 17 00 00 00 00')
+                        HD(ECU_R_ADDR_H) + SZ('22') +
+            DT('16 16 17 00 00 00 00')
         },
         'CUSTOM_BTY_CURR': {
             'Request': '^2198' + ELM_FOOTER,
@@ -3243,7 +3266,8 @@ ObdMessage = {
             'Header': ECU_ADDR_H,
             'Response': HD(ECU_R_ADDR_H) + SZ('10') + DT('0F 61 C2 30 32 30 35') +
                         HD(ECU_R_ADDR_H) + SZ('21') + DT('30 00 22 05 04 00 00') +
-                        HD(ECU_R_ADDR_H) + SZ('22') + DT('00 01 00 00 00 00 00')
+                        HD(ECU_R_ADDR_H) + SZ('22') +
+            DT('00 01 00 00 00 00 00')
         },
         'CUSTOM_#CURR_CODE': {
             'Request': '^21E1' + ELM_FOOTER,
@@ -3797,7 +3821,8 @@ ObdMessage = {
             'Unit': 'Off/On',
             'Header': ECU_ADDR_E,
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('0C 61 06 00 07 A1 00') +
-                        HD(ECU_R_ADDR_E) + SZ('21') + DT('03 06 00 00 00 00 00')
+                        HD(ECU_R_ADDR_E) + SZ('21') +
+            DT('03 06 00 00 00 00 00')
         },
         'CUSTOM_HV_COMM': {
             'Request': '^2124' + ELM_FOOTER,
@@ -3884,7 +3909,8 @@ ObdMessage = {
             'Response': HD(ECU_R_ADDR_E) + SZ('10') + DT('15 61 C1 5A 57 45 31') +
                         HD(ECU_R_ADDR_E) + SZ('21') + DT('38 23 20 32 5A 52 46') +
                         HD(ECU_R_ADDR_E) + SZ('22') + DT('58 45 04 00 57 74 21') +
-                        HD(ECU_R_ADDR_E) + SZ('23') + DT('00 00 00 00 00 00 00')
+                        HD(ECU_R_ADDR_E) + SZ('23') +
+            DT('00 00 00 00 00 00 00')
         },
         'CUSTOM_CLOAD_7E2': {
             'Request': '^2101' + ELM_FOOTER,
@@ -3962,17 +3988,27 @@ ObdMessage = {
                 # {E:3}=SET/COAST Switch, 0/1=Off/On
                 # {E:2}=Cancel Switch, 0/1=Off/On
                 #                        A  B  C  D  E
-                HD(ECU_R_ADDR_H) + SZ('07') + DT('61 21 00 00 81 00 00'),  # Park + No brakes
-                HD(ECU_R_ADDR_H) + SZ('07') + DT('61 21 00 00 81 3F 00'),  # Cruise on (transitory)
-                HD(ECU_R_ADDR_H) + SZ('07') + DT('61 21 00 00 7D 00 00'),  # "R" shift (reverse)
-                HD(ECU_R_ADDR_H) + SZ('07') + DT('61 21 00 00 81 80 00'),  # "D" shift (ahead)
+                HD(ECU_R_ADDR_H) + SZ('07') +
+                DT('61 21 00 00 81 00 00'),  # Park + No brakes
+                HD(ECU_R_ADDR_H) + SZ('07') +
+                DT('61 21 00 00 81 3F 00'),  # Cruise on (transitory)
+                HD(ECU_R_ADDR_H) + SZ('07') +
+                DT('61 21 00 00 7D 00 00'),  # "R" shift (reverse)
+                HD(ECU_R_ADDR_H) + SZ('07') +
+                DT('61 21 00 00 81 80 00'),  # "D" shift (ahead)
                 HD(ECU_R_ADDR_H) + SZ('07') + DT('61 21 00 00 81 03 00'),
-                HD(ECU_R_ADDR_H) + SZ('07') + DT('61 21 00 00 81 00 E0'),  # Park + Brakes
-                HD(ECU_R_ADDR_H) + SZ('07') + DT('61 21 00 00 81 00 60'),  # Park + Light brakes
-                HD(ECU_R_ADDR_H) + SZ('07') + DT('61 21 00 00 81 00 04'),  # Cruise control Cancel
-                HD(ECU_R_ADDR_H) + SZ('07') + DT('61 21 00 00 81 00 10'),  # Cruise control Up
-                HD(ECU_R_ADDR_H) + SZ('07') + DT('61 21 00 00 81 00 08'),  # Cruise control Down
-                HD(ECU_R_ADDR_H) + SZ('07') + DT('61 21 00 00 81 3C 00')  # Cruise on
+                HD(ECU_R_ADDR_H) + SZ('07') +
+                DT('61 21 00 00 81 00 E0'),  # Park + Brakes
+                HD(ECU_R_ADDR_H) + SZ('07') +
+                DT('61 21 00 00 81 00 60'),  # Park + Light brakes
+                HD(ECU_R_ADDR_H) + SZ('07') +
+                DT('61 21 00 00 81 00 04'),  # Cruise control Cancel
+                HD(ECU_R_ADDR_H) + SZ('07') +
+                DT('61 21 00 00 81 00 10'),  # Cruise control Up
+                HD(ECU_R_ADDR_H) + SZ('07') +
+                DT('61 21 00 00 81 00 08'),  # Cruise control Down
+                HD(ECU_R_ADDR_H) + SZ('07') +
+                DT('61 21 00 00 81 3C 00')  # Cruise on
             ]
         },
         'CUSTOM_P': {
@@ -4010,35 +4046,52 @@ ObdMessage = {
                 # Second group:     AA BB
                 # AA = 36, 38, 3A
                 # BB = (Park button pressed) 3A, 3B, 3C, 43, 75 (off), 88, 89, 90 (Park released)
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6D 6D 4A 4A') +  # default position (center, right)
-                HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00'),  # park button released
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6D 6D 4A 4A') +  # default position
-                HD(ECU_R_ADDR_H) + SZ('21') + DT('38 3B 00 00 00 00 00'),  # park button pressed
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6D 6D 4A 49') +  # center, middle
+                # default position (center, right)
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6D 6D 4A 4A') +
+                HD(ECU_R_ADDR_H) + SZ('21') +
+                DT('38 89 00 00 00 00 00'),  # park button released
+                # default position
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6D 6D 4A 4A') +
+                HD(ECU_R_ADDR_H) + SZ('21') +
+                DT('38 3B 00 00 00 00 00'),  # park button pressed
+                # center, middle
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6D 6D 4A 49') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00'),
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6D 6D 4A B3') +  # center, middle
+                # center, middle
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6D 6D 4A B3') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00'),
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6D 6D B5 B2') +  # moved to "N" position (center, left)
+                # moved to "N" position (center, left)
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6D 6D B5 B2') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00'),
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 BE BE 4A 4A') +  # moved to "B" position (down, right)
+                # moved to "B" position (down, right)
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 BE BE 4A 4A') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00'),
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 C5 C6 B5 B2') +  # moved to "D" position (down, left)
+                # moved to "D" position (down, left)
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 C5 C6 B5 B2') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00'),
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 1A 1B B5 B2') +  # moved to "R" position (up, left)
+                # moved to "R" position (up, left)
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 1A 1B B5 B2') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00'),
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6D 6D 4B 4A') +  # default (center, right)
+                # default (center, right)
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6D 6D 4B 4A') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('36 89 00 00 00 00 00'),
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 C4 C4 4A 49') +  # moved to "B" position (down, right)
+                # moved to "B" position (down, right)
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 C4 C4 4A 49') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00'),
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 1B 1B B5 B2') +  # moved to "R" position (up, left)
+                # moved to "R" position (up, left)
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 1B 1B B5 B2') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00'),
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 C4 C4 B5 B2') +  # moved to "D" position (down, left)
+                # moved to "D" position (down, left)
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 C4 C4 B5 B2') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00'),
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 70 70 B5 B2') +  # moved to "N" position (center, left)
+                # moved to "N" position (center, left)
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 70 70 B5 B2') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00'),
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6E 6E B5 B2') +  # moved to "N" position (center, left)
+                # moved to "N" position (center, left)
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6E 6E B5 B2') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00'),
-                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6E 6E 4A 4A') +  # default (center, right)
+                # default (center, right)
+                HD(ECU_R_ADDR_H) + SZ('10') + DT('08 61 41 6E 6E 4A 4A') +
                 HD(ECU_R_ADDR_H) + SZ('21') + DT('38 89 00 00 00 00 00')
             ]
         },
@@ -4222,7 +4275,8 @@ ObdMessage = {
             'Unit': 'm/s2',
             'Header': ECU_ADDR_S,
             'Response': HD(ECU_R_ADDR_S) + SZ('10') + DT('09 61 46 00 00 80 80') +
-                        HD(ECU_R_ADDR_S) + SZ('21') + DT('00 01 14 00 00 00 00')
+                        HD(ECU_R_ADDR_S) + SZ('21') +
+            DT('00 01 14 00 00 00 00')
         },
         'CUSTOM_REGENREQ': {
             'Request': '^2148' + ELM_FOOTER,
@@ -4273,16 +4327,16 @@ ObdMessage = {
         'RPM': {
             'Request': '^010C' + ELM_FOOTER,
             'Descr': 'Engine RPM',
-            'ResponseFooter': \
-                lambda self, cmd, pid, uc_val: \
-                    PA(self.sequence(pid, base=2400, max=200, factor=80, n_bytes=2))
+            'ResponseFooter':
+            lambda self, cmd, pid, uc_val:
+            PA(self.sequence(pid, base=2400, max=200, factor=80, n_bytes=2))
         },
         'SPEED': {
             'Request': '^010D' + ELM_FOOTER,
             'Descr': 'Vehicle Speed',
-            'ResponseFooter': \
-                lambda self, cmd, pid, uc_val: \
-                    PA(self.sequence(pid, base=0, max=30, factor=4, n_bytes=1))
+            'ResponseFooter':
+            lambda self, cmd, pid, uc_val:
+            PA(self.sequence(pid, base=0, max=30, factor=4, n_bytes=1))
         },
         'O2_SENSORS': {
             'Request': '^0113' + ELM_FOOTER,
@@ -4325,7 +4379,8 @@ ObdMessage = {
             'Response': PA('00')
         },
         "MONITOR": {
-            'Request': '^2101' + ELM_FOOTER,  # 21 (Read Data By Local Id) and 01 (Subfunction)
+            # 21 (Read Data By Local Id) and 01 (Subfunction)
+            'Request': '^2101' + ELM_FOOTER,
             'Descr': 'Monitor',
             'Response': [  # Returns a packet of 0x64 = 100 bytes: "Mode 1 Message".
                 PA(
@@ -4405,7 +4460,8 @@ ObdMessage = {
             'Request': '^38' + ELM_DATA_FOOTER,
             'Descr': 'UDS Start Routine by Address',
             'Exec': 'self.shared.executed_routine = cmd[2:] or None',
-            'ResponseFooter': lambda self, cmd, pid, uc_val: PA(cmd[2:])  # return the address after the SID
+            # return the address after the SID
+            'ResponseFooter': lambda self, cmd, pid, uc_val: PA(cmd[2:])
         },
         'UDS_WRITE_MEM_ADDR': {
             'Request': '^3D' + ELM_DATA_FOOTER,
@@ -4413,12 +4469,14 @@ ObdMessage = {
             'Task': 'task_mt05_write_mem_addr'
         },
         'UDS_START_ROUTINE': {
-            'Request': '^3101' + ELM_DATA_FOOTER,  # UDS Routine Control (31): Start (01)
+            # UDS Routine Control (31): Start (01)
+            'Request': '^3101' + ELM_DATA_FOOTER,
             'Descr': 'UDS Routine Control - start',
             'Task': 'task_mt05_start_routine'
         },
         'UDS_STOP_ROUTINE': {
-            'Request': '^3102' + ELM_FOOTER,  # UDS Routine Control (31): Stop (02)
+            # UDS Routine Control (31): Stop (02)
+            'Request': '^3102' + ELM_FOOTER,
             'Descr': 'UDS Routine Control - stop',
             'Task': 'task_mt05_stop_routine'
         },
