@@ -64,14 +64,32 @@ class CarEmulatorGUI:
         temp_label = ttk.Label(mainframe, text="Engine Temperature: 0.0 °C")
         temp_label.grid(column=0, columnspan=4, row=3,
                         rowspan=1, padx=2, pady=2)
+<<<<<<< HEAD
         fuel_label = ttk.Label(mainframe, text="Fuel Level: 100.0 %")
         fuel_label.grid(column=0, columnspan=4, row=4,
                         rowspan=1, padx=2, pady=2)
+=======
+        
+        #gear label *******
+         
+        gear_label = ttk.Label(mainframe, text="Gear: 1")  # New label for gear
+        gear_label.grid(column=0, columnspan=4, row=4,
+                         rowspan=1, padx=2, pady=2)
+        gear_position_label = ttk.Label(mainframe, text="Gear Position: N")  # New label for gear position
+        gear_position_label.grid(column=0, columnspan=4, row=5,
+                                  rowspan=1, padx=2, pady=2)
+
+        #*********
+>>>>>>> 35f0e1733d01354de8fd8bdb78ce9f470530d1d8
 
         selected = StringVar()
         presets = Variable(value=self.presets)
         listbox = Listbox(mainframe, listvariable=presets, selectmode='browse')
+<<<<<<< HEAD
         listbox.grid(column=1, columnspan=2, row=5, rowspan=4,
+=======
+        listbox.grid(column=1, columnspan=2, row=6, rowspan=4,
+>>>>>>> 35f0e1733d01354de8fd8bdb78ce9f470530d1d8
                      padx=2, pady=2, sticky=(N, W, E, S))
         listbox.bind('<<ListboxSelect>>', lambda event: selected.set(
             self.presets[listbox.curselection()[0]]))
@@ -136,6 +154,7 @@ class CarEmulatorGUI:
 
         load_curve_button = ttk.Button(
             mainframe, text="Load Hermite Curve", command=load_curve)
+<<<<<<< HEAD
         load_curve_button.grid(column=0, columnspan=1, row=6,
                                rowspan=2, padx=2, pady=2, sticky=(E, N, S))
 
@@ -149,6 +168,21 @@ class CarEmulatorGUI:
         remove_button = ttk.Button(
             mainframe, text="remove", command=remove_curve)
         remove_button.grid(column=3, row=8, padx=2, pady=2, sticky=(W, N, S))
+=======
+        load_curve_button.grid(column=0, columnspan=1, row=7,
+                               rowspan=2, padx=2, pady=2, sticky=(E, N, S))
+
+        file_name_entry = ttk.Entry(mainframe)
+        file_name_entry.grid(column=3, columnspan=1, row=7,
+                             rowspan=1, padx=2, pady=2, sticky=(W, N, S))
+        save_curve_button = ttk.Button(
+            mainframe, text="Save Hermite Curve", command=save_curve)
+        save_curve_button.grid(column=3, columnspan=1, row=8,
+                               rowspan=1, padx=2, pady=2, sticky=(W, N, S))
+        remove_button = ttk.Button(
+            mainframe, text="remove", command=remove_curve)
+        remove_button.grid(column=3, row=9, padx=2, pady=2, sticky=(W, N, S))
+>>>>>>> 35f0e1733d01354de8fd8bdb78ce9f470530d1d8
 
         def animate_curve():
             if len(animation_curve_gui.curve.points) > 1:
@@ -197,23 +231,37 @@ class CarEmulatorGUI:
         anim_speed_slider = ttk.Scale(
             mainframe, from_=0.1, to=2.0, orient="horizontal", value=1, command=update_sliders)
         anim_speed_slider.grid(column=1, columnspan=2,
+<<<<<<< HEAD
                                row=9, padx=2, pady=2, sticky=(W, E))
         anim_speed_label = ttk.Label(
             mainframe, text="Animation Speed Multiplier: 1.0x")
         anim_speed_label.grid(column=0, columnspan=1, row=9,
+=======
+                               row=10, padx=2, pady=2, sticky=(W, E))
+        anim_speed_label = ttk.Label(
+            mainframe, text="Animation Speed Multiplier: 1.0x")
+        anim_speed_label.grid(column=0, columnspan=1, row=10,
+>>>>>>> 35f0e1733d01354de8fd8bdb78ce9f470530d1d8
                               padx=2, pady=2, sticky=(E, N, S))
 
         animate_curve_button = ttk.Button(
             mainframe, text="Animate Hermite Curve", command=animate_curve)
         animate_curve_button.grid(
+<<<<<<< HEAD
             column=3, columnspan=1, row=9, padx=2, pady=2, sticky=(W, N, S))
 
         graphframe = ttk.Frame(mainframe, padding="1 1 1 1")
         graphframe.grid(column=0, columnspan=4, row=10,
+=======
+            column=3, columnspan=1, row=10, padx=2, pady=2, sticky=(W, N, S))
+
+        graphframe = ttk.Frame(mainframe, padding="1 1 1 1")
+        graphframe.grid(column=0, columnspan=4, row=11,
+>>>>>>> 35f0e1733d01354de8fd8bdb78ce9f470530d1d8
                         padx=2, pady=2, sticky=(N, S, E, W))
         animation_curve_gui = AnimationCurveEditor(graphframe)
 
-        def update_values():  # updates rpm, speed, and engine temperature
+        def update_values():  # updates rpm, speed,gear, gear position and engine temperature
             if not self.lock:
                 self.car.update(self.car.throttle_position,
                                 self.car.brake_position)
@@ -225,10 +273,18 @@ class CarEmulatorGUI:
                 temp_label.config(
                     text=f"Engine Temperature: {self.car.engine_temp:.1f} °C")
                 self.emulator.database["engine_temp"] = self.car.engine_temp
+<<<<<<< HEAD
                 # Update fuel level
                 fuel_label.config(
                     text=f"Fuel Level: {self.car.fuel_level:.1f} %")
                 self.emulator.database["fuel_level"] = self.car.fuel_level
+=======
+                
+                #Gear*****************************
+
+                gear_label.config(text=f"Gear: {self.car.gear}")  # Update gear label
+                gear_position_label.config(text=f"Gear Position: {self.car.gear_position}")  # Update gear position label
+>>>>>>> 35f0e1733d01354de8fd8bdb78ce9f470530d1d8
 
             root.after(10, update_values)
 

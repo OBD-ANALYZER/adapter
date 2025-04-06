@@ -319,6 +319,7 @@ class IsoTpMultiframe(Tasks):
                     self.logging.warning("Output data: %s", repr(resp))
             self.flow_control = self.flow_control_end - 1
 
+      
         if self.length * 2 <= len(self.req):
             self.frame = None
             return Tasks.RETURN.PASSTHROUGH(self.req[:self.length * 2])
@@ -342,7 +343,7 @@ def len_hex(s):
     """
     Check that the argument string is hexadecimal (digit pairs). If not,
     return False. If hex, return the number of hex bytes (digit pairs).
-    :param s: hex string
+    :param s: hex string 
     :return: either the number of hex bytes (0 or more bytes) or False (invalid
     digit, or digits not grouped into pairs).
     """
@@ -391,10 +392,11 @@ class Elm:
         # space the string into chunks of two bytes
         return " ".join(s[i:i + 2] for i in range(0, len(s), 2))
 
+   
     def reset(self, sleep):
         """
         Return all settings to their defaults.
-        Called by __init__(), ATZ and ATD.
+        Called by __init__(), ATZ and ATD.  
         """
         logging.debug("Resetting counters and sleeping for %s seconds", sleep)
         time.sleep(sleep)
@@ -407,6 +409,7 @@ class Elm:
         self.counters['cmd_version'] = self.version
         self.counters.update(self.presets)
 
+   
     def set_defaults(self):
         """
         Called by __init__() and terminate()
@@ -507,7 +510,12 @@ class Elm:
             "rpm": 0,
             "speed": 0,
             "engine_temp": 70,
+<<<<<<< HEAD
             "fuel_level": 100.0
+=======
+            "gear": 1,
+            "gear_position": "N",
+>>>>>>> 35f0e1733d01354de8fd8bdb78ce9f470530d1d8
         }
         self.version = ELM_VERSION
         self.header_version = ELM_HEADER_VERSION
@@ -1773,9 +1781,43 @@ class Elm:
             (cmd or '').maketrans('', '', string.whitespace)).upper()
 
         # Increment 'commands' counter
+        
         if 'commands' not in self.counters:
             self.counters['commands'] = 0
         self.counters['commands'] += 1
+
+        #*****************************************
+
+
+        
+         # Handle custom PIDs for gear and gear position
+        if cmd == "010C":  # Engine RPM
+         rpm = self.car.rpm
+         obd_rpm = int(rpm * 4)  # Convert RPM to OBD-II format
+         obd_rpm_hex = f"{obd_rpm:04X}"  # Convert to 4-digit hex
+         response = f"41 0C {obd_rpm_hex}"
+         return header, cmd, response
+
+        if cmd == "010D":  # Vehicle Speed
+         speed = self.car.speed
+         obd_speed = int(speed)  # Convert speed to OBD-II format
+         obd_speed_hex = f"{obd_speed:02X}"  # Convert to 2-digit hex
+         response = f"41 0D {obd_speed_hex}"
+         return header, cmd, response
+
+        if cmd == "0120":  # Custom PID for Gear Position
+         gear_position = self.car.gear_position
+         obd_gear_position = int(ord(gear_position[0]))  # Convert to ASCII value
+         obd_gear_position_hex = f"{obd_gear_position:02X}"  # Convert to 2-digit hex
+         response = f"41 20 {obd_gear_position_hex}"
+         return header, cmd, response
+
+        if cmd == "0121":  # Custom PID for Gear
+         gear = self.car.gear
+         obd_gear = int(gear)  # Convert gear to OBD-II format
+         obd_gear_hex = f"{obd_gear:02X}"  # Convert to 2-digit hex
+         response = f"41 21 {obd_gear_hex}"
+         return header, cmd, response
 
         # cmd_can is experimental (to be removed)
         if ('cmd_can' in self.counters and
@@ -2047,6 +2089,8 @@ class Elm:
             )
             self.tasks[ecu][-1].__module__ = ISO_TP_MULTIFRAME_MODULE
 
+        
+        
         # Manage active tasks
         if ecu in self.tasks and self.tasks[ecu]:  # if a task exists
             if len_hex(cmd):
