@@ -637,7 +637,10 @@ ObdMessage = {
         'COOLANT_TEMP': {
             'Request': '^0105' + ELM_FOOTER,
             'Descr': 'Engine Coolant Temperature',
-            'Response': PA('7B')
+            "ResponseFooter": lambda self, cmd, pid, uc_val: (
+                f"{(temp := int(self.database['engine_temp']) - 40):02X} "
+                + " " + HD(ECU_R_ADDR_E) + SZ("03") + DT("41 05 " + f"{temp:02X}")
+            )
         },
         'INTAKE_PRESSURE': {
             'Request': '^010B' + ELM_FOOTER,
@@ -1334,7 +1337,17 @@ ObdMessage = {
             # 0.74 volt
             # 0.21 volt
             # 0.35 volt
-        },
+        },#**********************************************
+        "010C": {
+            "REQUEST": "010C", "RESPONSE": "41 0C {rpm}",
+              "DESCR": "Engine RPM"},
+        "010D": {
+            "REQUEST": "010D", "RESPONSE": "41 0D {speed}",
+              "DESCR": "Vehicle Speed"},
+        "0120": {"REQUEST": "0120", "RESPONSE": "41 20 {gear_position}",
+                  "DESCR": "Gear Position"},
+        "0121": {"REQUEST": "0121", "RESPONSE": "41 21 {gear}",
+                  "DESCR": "Gear"},     
         'OBD_COMPLIANCE': {
             'Request': '^011C' + ELM_FOOTER,
             'Descr': 'OBD Standards Compliance',

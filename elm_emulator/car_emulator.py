@@ -19,12 +19,40 @@ class Car:
         self.throttle_position = 0
         self.brake_position = 0
         self.gear = 1
+        self.gear_position = "N"  # Gear position (P, R, N, D)
+        self.engine_temp = 70
+        self.database = {
+            "rpm": self.rpm,
+            "speed": self.speed,
+            "gear": self.gear,
+            "engine_temp": self.engine_temp,
+            "gear_position": self.gear_position,
+        }
 
     def update(self, throttle_position, brake_position):
         self.throttle_position = throttle_position
         self.brake_position = brake_position
         self.update_rpm()
         self.update_speed()
+        self.update_engine_temp()
+        self.update_gear_position()  #Update gear position based on speed and throttle
+ 
+
+    def update_engine_temp(self):
+        """Simulate engine temperature changes based on throttle and brake inputs. """
+        # Increase temperature with throttle input
+        if self.throttle_position > 0:
+            self.engine_temp += self.throttle_position * 0.1
+
+        # Decrease temperature with brake input
+        if self.brake_position > 0:
+            self.engine_temp -= self.brake_position * 0.05
+
+        # Clamp temperature to realistic bounds (e.g., 40°C to 120°C)
+        self.engine_temp = max(40, min(self.engine_temp, 120))
+
+    def get_engine_temp(self):
+        return self.engine_temp
 
     def update_rpm(self):
         max_torque = 400  # Max torque in Nm
@@ -66,3 +94,22 @@ class Car:
             self.gear += 1
         elif self.speed < 10 and self.gear > 1:
             self.gear -= 1
+
+#Gear 
+    def update_gear_position(self):
+        """Update the gear position (P, R, N, D) based on speed and throttle."""
+        if self.speed == 0:
+            if self.throttle_position == 0 and self.brake_position > 0:
+                self.gear_position = "P"  # Park
+            elif self.throttle_position < 0:
+                self.gear_position = "R"  # Reverse
+            else:
+                self.gear_position = "N"  # Neutral
+        else:
+            self.gear_position = "D"  # Drive
+
+    def get_gear_position(self):
+        return self.gear_position
+
+    def get_gear(self):
+        return self.gear
