@@ -32,12 +32,9 @@ class Car:
             "speed": self.speed,
             "gear": self.gear,
             "engine_temp": self.engine_temp,
-<<<<<<< HEAD
             "fuel_level": self.fuel_level,
             "fuel_consumption_rate": self.fuel_consumption_rate,
-=======
             "gear_position": self.gear_position,
->>>>>>> 35f0e1733d01354de8fd8bdb78ce9f470530d1d8
         }
 
     def update(self, throttle_position, brake_position):
@@ -46,7 +43,6 @@ class Car:
         self.update_rpm()
         self.update_speed()
         self.update_engine_temp()
-<<<<<<< HEAD
         self.update_fuel_consumption()  # Update fuel consumption
 
     def update_fuel_consumption(self):
@@ -79,10 +75,7 @@ class Car:
         """Set the fuel level to a specific value (in liters)."""
         self.fuel_level = max(0, min(level, self.FUEL_TANK_CAPACITY))
         self.database["fuel_level"] = self.fuel_level
-=======
-        self.update_gear_position()  #Update gear position based on speed and throttle
- 
->>>>>>> 35f0e1733d01354de8fd8bdb78ce9f470530d1d8
+        self.update_gear_position()  # Update gear position based on speed and throttle
 
     def update_engine_temp(self):
         """Simulate engine temperature changes based on throttle and brake inputs. """
@@ -145,7 +138,7 @@ class Car:
         elif self.speed < 10 and self.gear > 1:
             self.gear -= 1
 
-#Gear 
+# Gear
     def update_gear_position(self):
         """Update the gear position (P, R, N, D) based on speed and throttle."""
         if self.speed == 0:
