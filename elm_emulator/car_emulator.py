@@ -12,6 +12,9 @@ class Car:
     GEAR_RATIOS = [3.5, 2.8, 2.0, 1.5, 1.0, 0.8]
     FINAL_DRIVE_RATIO = 3.42
     WHEEL_RADIUS = 0.3  # in meters
+    FUEL_TANK_CAPACITY = 50  # Fuel tank capacity in liters
+    # Base fuel consumption rate in liters per second
+    BASE_FUEL_CONSUMPTION_RATE = 0.1
 
     def __init__(self):
         self.rpm = self.RPM[0]
@@ -21,12 +24,20 @@ class Car:
         self.gear = 1
         self.gear_position = "N"  # Gear position (P, R, N, D)
         self.engine_temp = 70
+        self.fuel_level = self.FUEL_TANK_CAPACITY  # Initial fuel level in liters
+        # Current fuel consumption rate in liters per second
+        self.fuel_consumption_rate = 0.002
         self.database = {
             "rpm": self.rpm,
             "speed": self.speed,
             "gear": self.gear,
             "engine_temp": self.engine_temp,
+<<<<<<< HEAD
+            "fuel_level": self.fuel_level,
+            "fuel_consumption_rate": self.fuel_consumption_rate,
+=======
             "gear_position": self.gear_position,
+>>>>>>> 35f0e1733d01354de8fd8bdb78ce9f470530d1d8
         }
 
     def update(self, throttle_position, brake_position):
@@ -35,8 +46,43 @@ class Car:
         self.update_rpm()
         self.update_speed()
         self.update_engine_temp()
+<<<<<<< HEAD
+        self.update_fuel_consumption()  # Update fuel consumption
+
+    def update_fuel_consumption(self):
+        """
+        Calculate fuel consumption based on RPM, throttle position, and gear.
+        """
+        # Fuel consumption increases with RPM and throttle position
+        self.fuel_consumption_rate = (
+            self.BASE_FUEL_CONSUMPTION_RATE *
+            (self.rpm / 1000) *
+            (self.throttle_position / 100) *
+            (1 / (self.gear + 1))
+        )
+        self.fuel_level -= self.fuel_consumption_rate
+        if self.fuel_level < 0:
+            self.fuel_level = 0
+        self.database["fuel_level"] = self.fuel_level
+        self.database["fuel_consumption_rate"] = self.fuel_consumption_rate
+
+    def refuel(self):
+        """Refuel the car to full tank capacity."""
+        self.fuel_level = self.FUEL_TANK_CAPACITY
+        self.database["fuel_level"] = self.fuel_level
+
+    def get_fuel_level_percentage(self):
+        """Return the fuel level as a percentage of the tank capacity."""
+        return (self.fuel_level / self.FUEL_TANK_CAPACITY) * 100
+
+    def set_fuel_level(self, level):
+        """Set the fuel level to a specific value (in liters)."""
+        self.fuel_level = max(0, min(level, self.FUEL_TANK_CAPACITY))
+        self.database["fuel_level"] = self.fuel_level
+=======
         self.update_gear_position()  #Update gear position based on speed and throttle
  
+>>>>>>> 35f0e1733d01354de8fd8bdb78ce9f470530d1d8
 
     def update_engine_temp(self):
         """Simulate engine temperature changes based on throttle and brake inputs. """
@@ -56,23 +102,27 @@ class Car:
 
     def update_rpm(self):
         max_torque = 400  # Max torque in Nm
-        torque = max_torque * np.sin(np.pi * (self.rpm - self.RPM[0]) / (self.RPM[1] - self.RPM[0]))
+        torque = max_torque * \
+            np.sin(
+                np.pi * (self.rpm - self.RPM[0]) / (self.RPM[1] - self.RPM[0]))
 
         # Update RPM based on throttle position and torque
         self.rpm += (self.throttle_position * torque) / (
-                    self.GEAR_RATIOS[self.gear - 1] * self.FINAL_DRIVE_RATIO * self.WHEEL_RADIUS)
+            self.GEAR_RATIOS[self.gear - 1] * self.FINAL_DRIVE_RATIO * self.WHEEL_RADIUS)
         self.rpm = min(max(self.rpm, self.RPM[0]), self.RPM[1])
 
     def update_speed(self):
         # Calculate the engine power based on RPM and throttle position
         max_power = 200  # Max power in kW
-        power = max_power * (self.rpm / self.RPM[1]) * self.throttle_position  # Power in kW
+        power = max_power * \
+            (self.rpm / self.RPM[1]) * self.throttle_position  # Power in kW
 
         # Convert power to force (assuming 100% efficiency for simplicity)
         force = (power * 1000) / (self.speed / 3.6 + 0.1)  # Force in N
 
         # Calculate drag force
-        drag_force = 0.5 * self.DRAG_COEFFICIENT * self.FRONTAL_AREA * self.AIR_DENSITY * (self.speed / 3.6) ** 2
+        drag_force = 0.5 * self.DRAG_COEFFICIENT * self.FRONTAL_AREA * \
+            self.AIR_DENSITY * (self.speed / 3.6) ** 2
 
         # Calculate braking force
         brake_force = self.brake_position * self.BRAKE_FORCE
